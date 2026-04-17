@@ -1,5 +1,8 @@
 package com.dominik.modid;
 
+import com.dominik.modid.network.HiddenAbilityFeaturePacket;
+import com.dominik.modid.network.HiddenAbilityPackets;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -18,6 +21,9 @@ public class PokeRadar implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
+		PayloadTypeRegistry.playS2C().register(HiddenAbilityPackets.HIDDEN_ABILITY_SYNC, HiddenAbilityPackets.STREAM_CODEC);
+		PayloadTypeRegistry.playS2C().register(HiddenAbilityFeaturePacket.ID, HiddenAbilityFeaturePacket.STREAM_CODEC);
+		HiddenAbilitySyncService.init();
 		LOGGER.info("Hello Fabric world!");
 	}
 }

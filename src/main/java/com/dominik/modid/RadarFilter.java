@@ -11,6 +11,8 @@ public class RadarFilter {
     public static boolean SHOW_SEARCH = true;
     public static boolean SHOW_HITBOX = false;
     public static boolean SHOW_UNCAUGHT = false;
+    public static boolean SHOW_HIDDEN_ABILITY = true;
+
 
     public enum GenderFilter {
         ANY, MALE, FEMALE, GENDERLESS;

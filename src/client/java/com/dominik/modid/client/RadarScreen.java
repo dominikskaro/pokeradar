@@ -18,6 +18,8 @@ public class RadarScreen extends Screen {
     private Checkbox checkHitbox;
     private Button genderButton;
     private Checkbox checkUncaught;
+    private Checkbox checkHiddenAbility;
+
 
     public RadarScreen() {
         super(Component.literal("Radar Filter"));
@@ -31,6 +33,9 @@ public class RadarScreen extends Screen {
 
         int yOffset = -70;
         centerY += yOffset;
+
+        boolean showHiddenAbilityOption = HiddenAbilityCache.FEATURE_AVAILABLE || (this.minecraft != null && this.minecraft.hasSingleplayerServer());
+
 
         // search box
         textBox = new EditBox(
@@ -71,17 +76,30 @@ public class RadarScreen extends Screen {
                 .build();
         this.addRenderableWidget(checkSearch);
 
+        int nextY = centerY + 90;
+
+        if (showHiddenAbilityOption) {
+            checkHiddenAbility = Checkbox.builder(Component.literal("Show Lines for Hidden Ability"), this.font)
+                    .pos(centerX - 100, nextY)
+                    .selected(RadarFilter.SHOW_HIDDEN_ABILITY)
+                    .build();
+            this.addRenderableWidget(checkHiddenAbility);
+            nextY += 25;
+        }
+
         checkUncaught = Checkbox.builder(Component.literal("Show Lines for Uncaught Pokemon"), this.font)
-                .pos(centerX - 100, centerY + 90)
+                .pos(centerX - 100, nextY)
                 .selected(RadarFilter.SHOW_UNCAUGHT)
                 .build();
         this.addRenderableWidget(checkUncaught);
+        nextY += 25;
 
         checkHitbox = Checkbox.builder(Component.literal("Show Hitbox (Box around Pokemon)"), this.font)
-                .pos(centerX - 100, centerY + 115)
+                .pos(centerX - 100, nextY)
                 .selected(RadarFilter.SHOW_HITBOX)
                 .build();
         this.addRenderableWidget(checkHitbox);
+        nextY += 25;
 
         genderButton = Button.builder(
                 Component.literal("Gender: " + RadarFilter.SELECTED_GENDER.name()),
@@ -89,21 +107,21 @@ public class RadarScreen extends Screen {
                     RadarFilter.SELECTED_GENDER = RadarFilter.SELECTED_GENDER.next();
                     btn.setMessage(Component.literal("Gender: " + RadarFilter.SELECTED_GENDER.name()));
                 }
-        ).bounds(centerX - 100, centerY + 140, 200, 20).build();
+        ).bounds(centerX - 100, nextY, 200, 20).build();
 
         this.addRenderableWidget(genderButton);
 
-        // apply button
         Button applyButton = Button.builder(
                 Component.literal("Apply"),
                 btn -> applyFilterAndClose()
         ).bounds(
                 centerX - 100,
-                centerY + 170,
+                nextY + 30,
                 200,
                 20
         ).build();
         this.addRenderableWidget(applyButton);
+
     }
 
     private void applyFilterAndClose() {
@@ -124,6 +142,9 @@ public class RadarScreen extends Screen {
         RadarFilter.SHOW_SEARCH = checkSearch.selected();
         RadarFilter.SHOW_HITBOX = checkHitbox.selected();
         RadarFilter.SHOW_UNCAUGHT = checkUncaught.selected();
+        if (checkHiddenAbility != null) {
+            RadarFilter.SHOW_HIDDEN_ABILITY = checkHiddenAbility.selected();
+        }
 
         this.minecraft.setScreen(null);
     }
@@ -147,12 +168,22 @@ public class RadarScreen extends Screen {
 
         int yOffset = -70;
         centerY += yOffset;
+        boolean showHiddenAbilityOption = HiddenAbilityCache.FEATURE_AVAILABLE || (this.minecraft != null && this.minecraft.hasSingleplayerServer());
 
         graphics.fill(centerX - 115, centerY - 10 + 3, centerX - 115 + 8, centerY - 10 + 11, 0xFFFF0000); // crvena
-        graphics.fill(centerX - 115, centerY + 15 + 3, centerX - 115 + 8, centerY + 15 + 11, 0xFFFFC800); // žuta
+        graphics.fill(centerX - 115, centerY + 15 + 3, centerX - 115 + 8, centerY + 15 + 11, 0xFFFFC800); // zuta
         graphics.fill(centerX - 115, centerY + 40 + 3, centerX - 115 + 8, centerY + 40 + 11, 0xFFFF69B4); // roza
         graphics.fill(centerX - 115, centerY + 65 + 3, centerX - 115 + 8, centerY + 65 + 11, 0xFF0096FF); // plava
-        graphics.fill(centerX - 115, centerY + 90 + 3, centerX - 115 + 8, centerY + 90 + 11, 0xFF00FF00); // zelena
+
+        int legendY = centerY + 90;
+
+        if (showHiddenAbilityOption) {
+            graphics.fill(centerX - 115, legendY + 3, centerX - 115 + 8, legendY + 11, 0xFFFFFFFF); // bijela
+            legendY += 25;
+        }
+
+        graphics.fill(centerX - 115, legendY + 3, centerX - 115 + 8, legendY + 11, 0xFF00FF00); // zelena
+
 
         graphics.drawCenteredString(this.font, "Pokemon names (use comma to search for multiple)", centerX, centerY - 55, 0xFFFFFF);
 
