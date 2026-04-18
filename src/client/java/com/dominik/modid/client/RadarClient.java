@@ -37,6 +37,10 @@ public class RadarClient {
                         && HiddenAbilityCache.ENTITY_HIDDEN_ABILITY.getOrDefault(entity.getId(), false)
                         && RadarFilter.SHOW_HIDDEN_ABILITY;
 
+                boolean natureFeatureAvailable = NatureCache.FEATURE_AVAILABLE;
+                String natureName = NatureCache.ENTITY_NATURES.get(entity.getId());
+
+
 
                 var pokedexManager = CobblemonClient.INSTANCE.getClientPokedexData();
                 var speciesId = pokemon.getSpecies().getResourceIdentifier();
@@ -53,18 +57,30 @@ public class RadarClient {
 
                 boolean hasOwner = pokemonEntity.getOwnerUUID() != null;
 
-// Provjera 2: Je li pokemon u bitci ili pripada nekom trenažeru?
-// (isWild() nekad zakaže, pa kombiniramo)
                 boolean isNotWild = !pokemon.isWild() || hasOwner;
 
                 if (isNotWild) continue;
 
                 String name = pokemon.getSpecies().getName().toLowerCase();
 
+                boolean natureMatches = false;
+
+                if (natureFeatureAvailable && !RadarFilter.NATURE_FILTERS.isEmpty() && natureName != null) {
+                    for (String filter : RadarFilter.NATURE_FILTERS) {
+                        if (natureName.contains(filter)) {
+                            natureMatches = true;
+                            break;
+                        }
+                    }
+                }
+
+                boolean isNatureTarget = natureMatches && RadarFilter.SHOW_NATURE_SEARCH;
+
                 boolean isSpecial = (pokemon.isLegendary() || pokemon.isMythical() || pokemon.isUltraBeast()) && RadarFilter.SHOW_LEGENDARY;
                 boolean isShiny = pokemon.getShiny() && RadarFilter.SHOW_SHINY;
                 boolean isDitto = name.equals("ditto") && RadarFilter.SHOW_DITTO;
-                boolean isTarget = isSpecial || isShiny || isDitto || isHiddenAbility || isUncaught;
+                boolean isTarget = isSpecial || isShiny || isDitto || isNatureTarget || isHiddenAbility || isUncaught;
+
 
                 if (!RadarFilter.FILTERS.isEmpty()) {
                     if (!isTarget) {
@@ -89,10 +105,12 @@ public class RadarClient {
                     color = new int[]{255, 255, 255, 220}; // bijela
                 } else if (isSpecial) {
                     color = new int[]{255, 0, 0, 255}; // crvena
-                } else if (isShiny) {
+                } else if (pokemon.getShiny()) {
                     color = new int[]{255, 200, 0, 220}; // zuta
-                }else if (isUncaught) {
-                        color = new int[]{0, 255, 0, 220}; // zelena
+                } else if (isNatureTarget) {
+                    color = new int[]{255, 140, 0, 220}; // narancasta
+                } else if (isUncaught) {
+                    color = new int[]{0, 255, 0, 220}; // zelena
                 } else {
                     color = new int[]{0, 150, 255, 220}; // plava
                 }

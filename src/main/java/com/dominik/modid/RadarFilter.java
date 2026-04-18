@@ -12,6 +12,8 @@ public class RadarFilter {
     public static boolean SHOW_HITBOX = false;
     public static boolean SHOW_UNCAUGHT = false;
     public static boolean SHOW_HIDDEN_ABILITY = true;
+    public static List<String> NATURE_FILTERS = new ArrayList<>();
+    public static boolean SHOW_NATURE_SEARCH = false;
 
 
     public enum GenderFilter {

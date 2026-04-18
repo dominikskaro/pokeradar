@@ -2,6 +2,8 @@ package com.dominik.modid.client;
 
 import com.dominik.modid.network.HiddenAbilityFeaturePacket;
 import com.dominik.modid.network.HiddenAbilityPackets;
+import com.dominik.modid.network.NatureFeaturePacket;
+import com.dominik.modid.network.NatureSyncPacket;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -19,11 +21,10 @@ public class PokeRadarClient implements ClientModInitializer {
 		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
 		RadarClient.init();
 		RadarRenderer.init();
-		// keybind
 		OPEN_RADAR = KeyBindingHelper.registerKeyBinding(
 				new KeyMapping(
 						"Open Analysis Menu",
-						GLFW.GLFW_KEY_R,
+						GLFW.GLFW_KEY_DELETE,
 						"Pokemon Analysis"
 				)
 		);
@@ -40,12 +41,23 @@ public class PokeRadarClient implements ClientModInitializer {
 			});
 		});
 
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-			HiddenAbilityCache.reset();
+		ClientPlayNetworking.registerGlobalReceiver(NatureSyncPacket.ID, (payload, context) -> {
+			context.client().execute(() -> {
+				NatureCache.ENTITY_NATURES.put(payload.entityId(), payload.natureName());
+			});
 		});
 
+		ClientPlayNetworking.registerGlobalReceiver(NatureFeaturePacket.ID, (payload, context) -> {
+			context.client().execute(() -> {
+				NatureCache.FEATURE_AVAILABLE = payload.available();
+			});
+		});
 
-		// 🔥 OVO TI JE FALILO
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			HiddenAbilityCache.reset();
+			NatureCache.reset();
+		});
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (OPEN_RADAR.consumeClick()) {
 				client.setScreen(new RadarScreen());

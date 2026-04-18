@@ -2,6 +2,8 @@ package com.dominik.modid;
 
 import com.dominik.modid.network.HiddenAbilityFeaturePacket;
 import com.dominik.modid.network.HiddenAbilityPackets;
+import com.dominik.modid.network.NatureFeaturePacket;
+import com.dominik.modid.network.NatureSyncPacket;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.api.ModInitializer;
 
@@ -23,7 +25,10 @@ public class PokeRadar implements ModInitializer {
 		// Proceed with mild caution.
 		PayloadTypeRegistry.playS2C().register(HiddenAbilityPackets.HIDDEN_ABILITY_SYNC, HiddenAbilityPackets.STREAM_CODEC);
 		PayloadTypeRegistry.playS2C().register(HiddenAbilityFeaturePacket.ID, HiddenAbilityFeaturePacket.STREAM_CODEC);
+		PayloadTypeRegistry.playS2C().register(NatureSyncPacket.ID, NatureSyncPacket.STREAM_CODEC);
+		PayloadTypeRegistry.playS2C().register(NatureFeaturePacket.ID, NatureFeaturePacket.STREAM_CODEC);
 		HiddenAbilitySyncService.init();
+		NatureSyncService.init();
 		LOGGER.info("Hello Fabric world!");
 	}
 }
